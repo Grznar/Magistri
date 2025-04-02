@@ -1,0 +1,38 @@
+﻿@model LoginVM
+
+<div class="position-relative login-picture vh-100 w-100 text-center">
+<div class="container d-flex flex-column justify-content-center align-items-center position-absolute " style="min-height: 100vh;">
+    
+    <div class="mb-4 text-center text-white">
+        <h1 class="fw-bold text-dark">Magistři</h1>
+    </div>
+
+    
+    <div class="card shadow" style="width: 100%; max-width: 400px;">
+        <div class="card-body p-4">
+            <h4 class="card-title text-center mb-4">Přihlášení</h4>
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" class="form-control" placeholder="Email" />
+                    <label asp-for="Email">Email</label>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Password" type="password" class="form-control" placeholder="Heslo" />
+                    <label asp-for="Password">Heslo</label>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Přihlásit se</button>
+            </form>
+            <div class="mt-3  text-end">
+                <a asp-action="Register">Registrovat se</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
