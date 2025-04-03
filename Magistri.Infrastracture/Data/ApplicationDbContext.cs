@@ -19,7 +19,9 @@ namespace Magistri.Infrastracture.Data
         }
 
         public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
-       
+        public virtual DbSet<Class> Classes { get; set; }
+        public virtual DbSet<Subject> Subjects { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

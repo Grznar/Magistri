@@ -1,0 +1,40 @@
+﻿@model int
+<input id="classId" type="hidden" value="@Model" />
+<div class="container mt-5 mb-2">
+	<div class="row">
+		<div class="col-md-10 offset-md-1">
+			<div class="card">
+				<div class="card-title">
+					<h1 class="fw-bold text-primary text-center ">Seznam Žáků</h1>
+				</div>
+				<div class="card-body">
+					<table id="tableStudent" data-pagination="true"
+						   data-search="true">
+						<thead>
+							<tr>
+								<th data-sortable="true" data-field="id">Id</th>
+								
+								<th data-field="name">Jméno</th>
+							</tr>
+						</thead>
+
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="row mt-5">
+			<div class="col-md-3">
+				<button class="btn btn-danger">
+					<a asp-controller="Class" asp-action="Index" class="text-decoration-none text-white">
+						Zpět
+					</a>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	@section Scripts {
+		@{
+			<script src="~/js/studentTable .js"></script>
+		}
+	}

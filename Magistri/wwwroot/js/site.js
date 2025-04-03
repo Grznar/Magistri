@@ -4,13 +4,16 @@
 // Write your JavaScript code.
 function userScroll() {
     const navbar = document.querySelector(".navbar");
-
+    const navbarBrand = document.querySelector(".navbar-brand");
+    if (!navbar || !navbarBrand) return;
     window.addEventListener("scroll", () => {
         if (window.scrollY > 50) {
-            navbar.classList.add("cyan");
+            
             navbar.classList.add("navbar-sticky");
+            navbarBrand.classList.add("navbar-brand-opacity")
         } else {
-            navbar.classList.remove("cyan");
+            navbar.classList.add("navbar-brand-opacity");
+            navbarBrand.classList.remove("navbar-brand-opacity")
             navbar.classList.remove("navbar-sticky");
         }
     });

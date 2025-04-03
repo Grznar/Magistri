@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Magistri.Application.Common.Interfaces
 {
-    public interface IStudentRepository : IRepository<ApplicationUser>
+    public interface ILessonRepository : IRepository<Lesson>
     {
-        void Update(ApplicationUser entity);
+        void Update(Lesson entity);
     }
 }

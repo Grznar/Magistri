@@ -1,0 +1,49 @@
+﻿@model Class
+<div class="container">
+	<div class="row">
+		<div class="col-md-6 offset-md-3">
+			<div class="card">
+				<div class="card-body">
+					<div class="card-title">
+						<h1 class="fw-bold text primary">Vytvořit třídu</h1>
+					</div>
+					<form method="POST">
+						
+						<div asp-validation-summary="ModelOnly"></div>
+
+						<div class="mb-3">
+							<label asp-for="Name" class="form-label">Název třídy</label>
+							<input asp-for="Name" class="form-control" />
+							<span asp-validation-for="Name" class="text-danger"></span>
+						</div>
+						<div class="mb-3">
+							<label asp-for="ShortName" class="form-label">Zkratka</label>
+							<input asp-for="ShortName" class="form-control" />
+							<span asp-validation-for="ShortName" class="text-danger"></span>
+						</div>
+						<div class="mb-3">
+							<label asp-for="Description" class="form-label">Popis</label>
+							<input asp-for="Description" class="form-control" />
+							<span asp-validation-for="Description" class="text-danger"></span>
+						</div>
+						<div class="mb-3">
+							<label asp-for="HomeClass" class="form-label">Domovská učebna</label>
+							<input asp-for="HomeClass" class="form-control" />
+							<span asp-validation-for="HomeClass" class="text-danger"></span>
+						</div>
+						<div class="row d-flex flex-row">
+							<div class="col-md-6">
+								<button type="submit" class="btn btn-primary">Vytvořit</button>
+							</div>
+							<div class="col-md-6  text-end align-items-end">
+								<a asp-action="Index" class="btn btn-danger">Zpět</a>
+							</div>
+							
+						</div>
+						
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

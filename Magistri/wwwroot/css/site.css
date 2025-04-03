@@ -18,14 +18,21 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
+    padding-top:30px !important;
+    padding-bottom: 30px !important;
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
 }
-
-.navbar {
+.navbar-collapse {
+    background-color: #f7ede6;
+    
+}
+.navbar, footer {
     height: 50px;
     transition: all 0.5s ease-in-out;
-    color: #f7ede6;
+    background-color: #f7ede6;
+}
+.image-header {
+    height: 50px;
 }
 .image-header {
     left:0px;
@@ -36,9 +43,11 @@ body {
     max-height:50px;
 
 }
-
-.navbar-sticky {
-    background: white;
+.navbar-brand-opacity {
+    opacity: 0.9;
+}
+.navbar-sticky{
+    
     opacity: 0.9;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
@@ -46,6 +55,7 @@ html, body {
     width: 100%;
     margin: 0;
     padding: 0;
+    padding-top:0;
 }
 
 .primary {

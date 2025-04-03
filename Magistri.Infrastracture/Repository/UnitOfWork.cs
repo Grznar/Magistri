@@ -12,11 +12,17 @@ namespace Magistri.Infrastracture.Repository
     {
         private readonly ApplicationDbContext _db;
         public IStudentRepository Students { get; private set; }
+        public IClassRepository Classes { get; private set; }
+        public ILessonRepository Lessons { get; private set; }
+        public ISubjectRepository Subjects { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             Students = new StudentRepository(_db);
+            Classes = new ClassRepository(_db);
+            Subjects = new SubjectRepository(_db);
+            Lessons = new LessonRepository(_db);
         }
         public void Save()
         {

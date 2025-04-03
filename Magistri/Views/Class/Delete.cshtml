@@ -1,0 +1,45 @@
+﻿@model Subject
+<div class="container">
+	<div class="row">
+		<div class="col-md-6 offset-md-3">
+			<div class="card">
+				<div class="card-body">
+					<div class="card-title">
+						<h1 class="fw-bold text primary">Vymazat Předmět</h1>
+					</div>
+					<form method="POST">
+
+						
+						<input asp-for="Id" hidden />
+						<div class="mb-3">
+							<label asp-for="Name" disabled class="form-label">Název třídy</label>
+							<input asp-for="Name" disabled class="form-control" />
+							
+						</div>
+						<div class="mb-3">
+							<label asp-for="ShortName" disabledclass="form-label">Zkratka</label>
+							<input asp-for="ShortName" disabled class="form-control" />
+							
+						</div>
+						<div class="mb-3">
+							<label asp-for="Description" disabled class="form-label">Popis</label>
+							<input asp-for="Description" disabled class="form-control" />
+							
+						</div>
+						
+						<div class="row d-flex flex-row">
+							<div class="col-md-6">
+								<button type="submit" class="btn btn-primary">Vymazat</button>
+							</div>
+							<div class="col-md-6  text-end align-items-end">
+								<a asp-action="List" class="btn btn-danger">Zpět</a>
+							</div>
+
+						</div>
+
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
