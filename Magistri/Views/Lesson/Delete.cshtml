@@ -1,0 +1,53 @@
+﻿@model LessonVM
+<div class="container">
+	<div class="row">
+		<div class="col-md-6 offset-md-3">
+			<div class="card">
+				<div class="card-body">
+					<div class="card-title">
+						<h1 class="fw-bold text primary">Vymazat Třídu</h1>
+					</div>
+                    <form method="POST">
+                        <input asp-for="Id" hidden />
+                        <div class="mb-3">
+                            <label disabled asp-for="Description" class="form-label">Popis</label>
+                            <input disabled asp-for="Description" class="form-control" />
+                            
+                        </div>
+
+                        <!-- Dropdown pro učitele -->
+                        <div class="mb-3">
+                            <label disabled asp-for="TeacherId"  class="form-label">Učitel</label>
+                            <select disabled  asp-for="TeacherId" class="form-select" asp-items="Model.TeacherList">
+                                <option value="">Vyberte učitele</option>
+                            </select>
+                           
+                        </div>
+
+                        <!-- Dropdown pro předmět -->
+                        <div class="mb-3">
+                            <label disabled asp-for="SubjectId" class="form-label">Předmět</label>
+                            <select disabled asp-for="SubjectId" class="form-select" asp-items="Model.SubjectList">
+                                <option value="">Vyberte předmět</option>
+                            </select>
+                           
+                        </div>
+
+                       
+
+                        <div class="row d-flex flex-row">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary">Vymazat</button>
+                            </div>
+                            <div class="col-md-6  text-end align-items-end">
+                                <a asp-action="List" class="btn btn-danger">Zpět</a>
+                            </div>
+
+                        </div>
+
+                    </form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
