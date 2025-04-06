@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Magistri.Application.Common.Interfaces
 {
-    public interface ITimeTableEntryRepository : IRepository<TimeTableEntry>
+    public interface ITimeTableDayEntryRepository : IRepository<TimeTableDayEntry>
     {
-        void Update(TimeTableEntry entity);
+        void Update(TimeTableDayEntry entity);
     }
 }

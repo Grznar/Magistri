@@ -1,37 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace Magistri.Domain.Entities
 {
-    public class TimetableEntry
+    public class TimeTableEntry
     {
         [Key]
         public int Id { get; set; }
 
         [ForeignKey("Class")]
         public int ClassId { get; set; }
+
         [ValidateNever]
         public Class Class { get; set; }
 
-        
-        public DayOfWeek Day { get; set; }
+        // Navigační vlastnost pro denní záznamy
+        public List<TimeTableDayEntry> DayEntries { get; set; } = new List<TimeTableDayEntry>();
 
-       
-        public int TimeSlot { get; set; }
 
-        [ForeignKey("Subject")]
-        public int SubjectId { get; set; }
-        [ValidateNever]
-        public Subject Subject { get; set; }
-        [ForeignKey("Students")]
-        public string TeacherId { get; set; }
-        [ValidateNever]
-        public ApplicationUser ApplicationUser { get; set; }
     }
+
 }

@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace Magistri.Infrastracture.Repository
 {
-    public class TimeTableEntryRepository : Repository<TimeTableEntry>, ITimeTableEntryRepository
+    public class TimeTableDayEntryRepository : Repository<TimeTableDayEntry>, ITimeTableDayEntryRepository
     {
 
         private readonly ApplicationDbContext _db;
 
-        public TimeTableEntryRepository(ApplicationDbContext db) : base(db)
+        public TimeTableDayEntryRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;
         }
@@ -22,7 +22,7 @@ namespace Magistri.Infrastracture.Repository
 
 
 
-        public void Update(TimeTableEntry entity)
+        public void Update(TimeTableDayEntry entity)
         {
             _db.Update(entity);
         }

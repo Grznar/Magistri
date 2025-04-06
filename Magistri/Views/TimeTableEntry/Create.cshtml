@@ -1,0 +1,79 @@
+﻿@model Magistri.ViewModels.TimetableDayEntryCreateVM
+
+<div class="container mt-5">
+    <form method="post" asp-action="Create">
+        <div asp-validation-summary="ModelOnly"></div>
+        <!-- Dropdown pro výběr třídy -->
+        <div class="mb-3">
+            <label asp-for="ClassId" class="form-label">Třída</label>
+            <select asp-for="ClassId" asp-items="Model.ClassList" class="form-select">
+                <option value="">-- Vyberte třídu --</option>
+            </select>
+            <span asp-validation-for="ClassId" class="text-danger"></span>
+        </div>
+
+        <!-- Denní záznamy -->
+        @for (int i = 0; i < Model.DayEntries.Count; i++)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">@Model.DayEntries[i].Day</h5>
+                    <input type="hidden" name="DayEntries[@i].Day" value="@Model.DayEntries[i].Day" />
+                    <div id="day-container-@i">
+                        <!-- První select pro daný den -->
+                        <select class="form-select"
+                                name="DayEntries[@i].LessonIds[0]"
+                                onchange="addNewSelect(@i)">
+                            <option value="">-- Vyberte lekci --</option>
+                            @foreach (var lesson in Model.LessonList)
+                            {
+                                <option value="@lesson.Value">@lesson.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary">Uložit rozvrh</button>
+    </form>
+</div>
+
+<!-- Skrytý template select s options pro lekce -->
+<select id="lesson-options-template" style="display:none;">
+    <option value="">-- Vyberte lekci --</option>
+    @foreach (var lesson in Model.LessonList)
+    {
+        <option value="@lesson.Value">@lesson.Text</option>
+    }
+</select>
+
+@section Scripts {
+    <script>
+        function addNewSelect(dayIndex) {
+            // Najdeme kontejner pro daný den
+            var container = document.getElementById('day-container-' + dayIndex);
+            // Získáme všechny selecty v kontejneru
+            var selects = container.getElementsByTagName('select');
+            var lastSelect = selects[selects.length - 1];
+            // Pokud je v posledním selectu vybrána nějaká hodnota (není prázdná), přidáme nový select
+            if (lastSelect.value !== "") {
+                // Vytvoříme nový select
+                var newSelect = document.createElement('select');
+                newSelect.className = 'form-select mt-2';
+                // Název bude odpovídat novému indexu
+                var newIndex = selects.length;
+                newSelect.name = 'DayEntries[' + dayIndex + '].LessonIds[' + newIndex + ']';
+
+                // Zkopírujeme obsah options z template
+                var template = document.getElementById('lesson-options-template');
+                newSelect.innerHTML = template.innerHTML;
+
+                // Nastavíme onchange event, aby se i pro tento nový select mohl přidat další
+                newSelect.onchange = function() { addNewSelect(dayIndex); };
+
+                container.appendChild(newSelect);
+            }
+        }
+    </script>
+}

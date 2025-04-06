@@ -13,6 +13,7 @@ namespace Magistri.Application.Common.Interfaces
         ISubjectRepository Subjects { get; }
         ILessonRepository Lessons { get; }
         ITimeTableEntryRepository TimeTableEntry { get; }
+        ITimeTableDayEntryRepository TimeTableDayEntry { get; }
         void Save();
     }
 }

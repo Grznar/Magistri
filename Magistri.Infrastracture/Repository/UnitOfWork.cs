@@ -16,6 +16,7 @@ namespace Magistri.Infrastracture.Repository
         public ILessonRepository Lessons { get; private set; }
         public ISubjectRepository Subjects { get; private set; }
         public ITimeTableEntryRepository TimeTableEntry { get; private set; }
+        public ITimeTableDayEntryRepository TimeTableDayEntry { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -25,6 +26,7 @@ namespace Magistri.Infrastracture.Repository
             Subjects = new SubjectRepository(_db);
             Lessons = new LessonRepository(_db);
             TimeTableEntry = new TimeTableEntryRepository(_db);
+            TimeTableDayEntry = new TimeTableDayEntryRepository(_db);
 
         }
         public void Save()

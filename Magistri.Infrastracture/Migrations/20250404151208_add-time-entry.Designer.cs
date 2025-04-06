@@ -4,6 +4,7 @@ using Magistri.Infrastracture.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Magistri.Infrastracture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250404151208_add-time-entry")]
+    partial class addtimeentry
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,7 +179,7 @@ namespace Magistri.Infrastracture.Migrations
                     b.ToTable("Subjects");
                 });
 
-            modelBuilder.Entity("Magistri.Domain.Entities.TimeTableDayEntry", b =>
+            modelBuilder.Entity("Magistri.Domain.Entities.TimetableDayEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -184,25 +187,24 @@ namespace Magistri.Infrastracture.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Day")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("LessonId")
+                    b.Property<int>("Day")
                         .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TimetableEntryId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("LessonId");
-
                     b.HasIndex("TimetableEntryId");
 
-                    b.ToTable("TimeTableDayEntry");
+                    b.ToTable("TimetableDayEntry");
                 });
 
-            modelBuilder.Entity("Magistri.Domain.Entities.TimeTableEntry", b =>
+            modelBuilder.Entity("Magistri.Domain.Entities.TimetableEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -381,26 +383,18 @@ namespace Magistri.Infrastracture.Migrations
                     b.Navigation("Subject");
                 });
 
-            modelBuilder.Entity("Magistri.Domain.Entities.TimeTableDayEntry", b =>
+            modelBuilder.Entity("Magistri.Domain.Entities.TimetableDayEntry", b =>
                 {
-                    b.HasOne("Magistri.Domain.Entities.Lesson", "Lesson")
-                        .WithMany()
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Magistri.Domain.Entities.TimeTableEntry", "TimetableEntry")
+                    b.HasOne("Magistri.Domain.Entities.TimetableEntry", "TimetableEntry")
                         .WithMany("DayEntries")
                         .HasForeignKey("TimetableEntryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Lesson");
-
                     b.Navigation("TimetableEntry");
                 });
 
-            modelBuilder.Entity("Magistri.Domain.Entities.TimeTableEntry", b =>
+            modelBuilder.Entity("Magistri.Domain.Entities.TimetableEntry", b =>
                 {
                     b.HasOne("Magistri.Domain.Entities.Class", "Class")
                         .WithMany()
@@ -462,7 +456,7 @@ namespace Magistri.Infrastracture.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Magistri.Domain.Entities.TimeTableEntry", b =>
+            modelBuilder.Entity("Magistri.Domain.Entities.TimetableEntry", b =>
                 {
                     b.Navigation("DayEntries");
                 });

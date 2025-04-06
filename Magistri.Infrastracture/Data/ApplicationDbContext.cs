@@ -22,7 +22,8 @@ namespace Magistri.Infrastracture.Data
         public virtual DbSet<Class> Classes { get; set; }
         public virtual DbSet<Subject> Subjects { get; set; }
         public virtual DbSet<Lesson> Lessons { get; set; }
-        public virtual DbSet<TimetableEntry> TimetableEntries { get; set; }
+        public virtual DbSet<TimeTableEntry> TimetableEntries { get; set; }
+        public virtual DbSet<TimeTableDayEntry> TimeTableDayEntry { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

@@ -1,0 +1,91 @@
+﻿
+@model int
+<div class="container mt-5 mb-2" id="Model" data-tableid="@Model">
+	<div class="row">
+		<div class="col-md-10 offset-md-1">
+			<div class="card">
+				<div class="card-title">
+					<h1 class="fw-bold text-primary text-center ">Seznam Rozvrhu - Dny</h1>
+				</div>
+				<div class="card-body">
+					<table id="tableEntriesDetails" data-pagination="true"
+						   data-search="true">
+						<thead>
+							<tr>
+								<th data-sortable="true" data-field="id">Id</th>
+
+								<th data-sortable="true" data-field="day">Den</th>
+								<th data-sortable="true" data-field="lesson.subject.shortName">Zkratka předmětu</th>
+								<th data-sortable="true" data-field="lesson.applicationUser.name">Jméno učitele</th>
+							</tr>
+						</thead>
+
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="row mt-5">
+			<div class="col-md-3">
+				<button class="btn btn-danger">
+					<a asp-controller="TimeTableEntry" asp-action="Index" class="text-decoration-none text-white">
+						Zpět
+					</a>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            var tableId = getElementById("Model").getAttribute("value");
+            console.log(tableId);
+            console.log("TableId: ", tableId);
+            $('#tableEntriesDetails').bootstrapTable({
+                url: '/TimeTableEntry/GetAllTableDetails?tableId=' + tableId,
+                dataField: 'data',
+                pagination: true,
+                search: true,
+                columns: [
+                    {
+                        field: 'id',
+                        title: 'ID',
+                        sortable: true
+                    },
+                    {
+                        field: 'day',
+                        title: 'Den',
+                        sortable: true
+                    },
+                    {
+                        field: 'lesson',
+                        title: 'Zkratka předmětu',
+                        sortable: true,
+                        formatter: function(value, row, index) {
+                            return value && value.subject ? value.subject.shortName : "Není zadáno";
+                        }
+                    },
+                    {
+                        field: 'lesson',
+                        title: 'Jméno učitele',
+                        sortable: true,
+                        formatter: function(value, row, index) {
+                            return value && value.applicationUser ? value.applicationUser.name : "Není zadáno";
+                        }
+                    },
+                    {
+                        field: 'actions',
+                        title: 'Akce',
+                        align: 'center',
+                        formatter: actionFormatter
+                    }
+                ]
+            });
+        });
+
+        function actionFormatter(value, row, index) {
+            return '<a href="/TimeTableEntry/TableDetails?tableId=' + row.id + '" class="btn btn-primary px-3">Upravit</a>';
+        }
+    </script>
+}
