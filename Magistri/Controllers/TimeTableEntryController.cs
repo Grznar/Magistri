@@ -32,10 +32,83 @@ namespace Magistri.Controllers
             var timeTableEntries = _unitOfWork.TimeTableDayEntry.GetAll(x => x.TimetableEntryId == tableId, includeProperties: "Lesson,Lesson.Subject,Lesson.ApplicationUser");
             return Json(new { data = timeTableEntries });
         }
+        [HttpGet]
         public IActionResult TableDetails(int tableId)
         {
-            return View();
+            // Načteme hlavní rozvrh včetně třídy i denních záznamů
+            var timetableEntry = _unitOfWork.TimeTableEntry.Get(
+                x => x.Id == tableId,
+                includeProperties: "Class,DayEntries"
+            );
+            if (timetableEntry == null)
+            {
+                return NotFound();
+            }
+
+            // Načteme globální seznam lekcí s vnořenými vlastnostmi
+            var lessonList = _unitOfWork.Lessons.GetAll(includeProperties: "Subject,ApplicationUser")
+                .Select(l => new SelectListItem
+                {
+                    Text = (l.Subject?.ShortName ?? "No Subject") + " / " + (l.ApplicationUser?.Name ?? "No Teacher"),
+                    Value = l.Id.ToString()
+                }).ToList();
+
+            EditTimeTableEntryVM vm = new EditTimeTableEntryVM
+            {
+                TimeTableEntry = timetableEntry,
+                DayEntries = timetableEntry.DayEntries.ToList(),
+                LessonList = lessonList
+            };
+
+            return View(vm);
         }
+
+
+        [HttpPost]
+        public IActionResult TableDetails(EditTimeTableEntryVM vm)
+        {
+            // Načteme hlavní rozvrh včetně aktuálních DayEntries
+            var timetableEntry = _unitOfWork.TimeTableEntry.Get(x => x.Id == vm.TimeTableEntry.Id, includeProperties: "DayEntries");
+            if (timetableEntry == null)
+            {
+                return NotFound();
+            }
+
+            // Aktualizujeme třídu, pokud se změnila
+            timetableEntry.ClassId = vm.TimeTableEntry.ClassId;
+
+            // Smažeme všechny existující denní záznamy z DB
+            var existingDayEntries = _unitOfWork.TimeTableDayEntry.GetAll(u => u.TimetableEntryId == timetableEntry.Id);
+            foreach (var de in existingDayEntries)
+            {
+                _unitOfWork.TimeTableDayEntry.Delete(de);
+            }
+
+            // Vytvoříme novou kolekci DayEntries podle dat z formuláře (vm.DayEntries)
+            if (vm.DayEntries != null)
+            {
+                foreach (var entry in vm.DayEntries)
+                {
+                    // Pokud je vybrána lekce (LessonId > 0) a den není prázdný, přidáme záznam
+                    if (entry.LessonId > 0 && !string.IsNullOrEmpty(entry.Day))
+                    {
+                        timetableEntry.DayEntries.Add(new TimeTableDayEntry
+                        {
+                            Day = entry.Day,
+                            LessonId = entry.LessonId,
+                            TimetableEntryId = timetableEntry.Id // nastavíme správně FK
+                        });
+                    }
+                }
+            }
+
+            _unitOfWork.TimeTableEntry.Update(timetableEntry);
+            _unitOfWork.Save();
+
+            return RedirectToAction("Index");
+        }
+
+
         public IActionResult Index()
         {
             return View();

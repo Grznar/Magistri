@@ -1,91 +1,139 @@
-﻿
-@model int
-<div class="container mt-5 mb-2" id="Model" data-tableid="@Model">
-	<div class="row">
-		<div class="col-md-10 offset-md-1">
-			<div class="card">
-				<div class="card-title">
-					<h1 class="fw-bold text-primary text-center ">Seznam Rozvrhu - Dny</h1>
-				</div>
-				<div class="card-body">
-					<table id="tableEntriesDetails" data-pagination="true"
-						   data-search="true">
-						<thead>
-							<tr>
-								<th data-sortable="true" data-field="id">Id</th>
+﻿@model Magistri.ViewModels.EditTimeTableEntryVM
 
-								<th data-sortable="true" data-field="day">Den</th>
-								<th data-sortable="true" data-field="lesson.subject.shortName">Zkratka předmětu</th>
-								<th data-sortable="true" data-field="lesson.applicationUser.name">Jméno učitele</th>
-							</tr>
-						</thead>
+@{
+    // Seskupíme existující záznamy podle dne (např. "Pondělí", "Úterý", …)
+    var groupedDays = Model.TimeTableEntry.DayEntries.GroupBy(e => e.Day).ToList();
+    int globalIndex = 0; // Globální čítač pro indexaci všech řádků
+}
 
-					</table>
-				</div>
-			</div>
-		</div>
-		<div class="row mt-5">
-			<div class="col-md-3">
-				<button class="btn btn-danger">
-					<a asp-controller="TimeTableEntry" asp-action="Index" class="text-decoration-none text-white">
-						Zpět
-					</a>
-				</button>
-			</div>
-		</div>
-	</div>
+<div class="container mt-5">
+    <form method="post" asp-action="TableDetails" id="tableDetailsForm">
+        <div asp-validation-summary="ModelOnly"></div>
+        <!-- Skryté inputy pro hlavní rozvrh -->
+        <input type="hidden" asp-for="TimeTableEntry.Id" />
+        <input type="hidden" asp-for="TimeTableEntry.ClassId" />
+
+        <h2 class="mb-4">
+            Úprava rozvrhu pro třídu: @Model.TimeTableEntry.Class.Name (@Model.TimeTableEntry.Class.ShortName)
+        </h2>
+        
+        <div id="daysContainer">
+            @foreach (var group in groupedDays)
+            {
+                <div class="card mb-3" id="card_@group.Key">
+                    <div class="card-header">
+                        <h5 class="card-title">@group.Key</h5>
+                    </div>
+                    <div class="card-body" id="dayContainer_@group.Key">
+                        @foreach (var entry in group)
+                        {
+                            <div class="input-group mb-2" id="entry_@globalIndex">
+                                <!-- Skrytý input pro index řádku -->
+                                <input type="hidden" name="DayEntries.index" value="@globalIndex" />
+                                <!-- Skrytý input pro ID existujícího záznamu -->
+                                <input type="hidden" name="DayEntries[@globalIndex].Id" value="@entry.Id" />
+                                <!-- Skrytý input pro den -->
+                                <input type="hidden" name="DayEntries[@globalIndex].Day" value="@entry.Day" />
+                                <select class="form-select" name="DayEntries[@globalIndex].LessonId">
+                                    <option value="">-- Vyberte lekci --</option>
+                                    @foreach (var lesson in Model.LessonList)
+                                    {
+                                        var selected = (entry.LessonId != 0 && entry.LessonId.ToString() == lesson.Value)
+                                            ? " selected=\"selected\"" : "";
+                                        @:<option value="@lesson.Value"@Html.Raw(selected)>@lesson.Text</option>
+                                    }
+                                </select>
+                                <button type="button" class="btn btn-outline-danger" onclick="removeEntry(@globalIndex)">Odstranit</button>
+                            </div>
+                            globalIndex++;
+                        }
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="addNewEntry('@group.Key')">Přidat lekci</button>
+                </div>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-primary">Uložit rozvrh</button>
+    </form>
 </div>
+
 @section Scripts {
     <script>
-        $(document).ready(function () {
+        // Inicializace globálního čítače pro nové položky, pokud ještě není definován
+        if (window.newEntryCounter === undefined) {
+            window.newEntryCounter = @globalIndex;
+        }
 
-            var tableId = getElementById("Model").getAttribute("value");
-            console.log(tableId);
-            console.log("TableId: ", tableId);
-            $('#tableEntriesDetails').bootstrapTable({
-                url: '/TimeTableEntry/GetAllTableDetails?tableId=' + tableId,
-                dataField: 'data',
-                pagination: true,
-                search: true,
-                columns: [
-                    {
-                        field: 'id',
-                        title: 'ID',
-                        sortable: true
-                    },
-                    {
-                        field: 'day',
-                        title: 'Den',
-                        sortable: true
-                    },
-                    {
-                        field: 'lesson',
-                        title: 'Zkratka předmětu',
-                        sortable: true,
-                        formatter: function(value, row, index) {
-                            return value && value.subject ? value.subject.shortName : "Není zadáno";
-                        }
-                    },
-                    {
-                        field: 'lesson',
-                        title: 'Jméno učitele',
-                        sortable: true,
-                        formatter: function(value, row, index) {
-                            return value && value.applicationUser ? value.applicationUser.name : "Není zadáno";
-                        }
-                    },
-                    {
-                        field: 'actions',
-                        title: 'Akce',
-                        align: 'center',
-                        formatter: actionFormatter
+        // Funkce pro přidání nové položky (nového selectu) do kontejneru pro daný den
+        function addNewEntry(day) {
+            var container = document.getElementById('dayContainer_' + day);
+            var newIndex = window.newEntryCounter;
+            window.newEntryCounter++;
+
+            var newDiv = document.createElement('div');
+            newDiv.className = 'input-group mb-2';
+            newDiv.id = 'entry_' + newIndex;
+
+            newDiv.innerHTML =
+                '<input type="hidden" name="DayEntries.index" value="' + newIndex + '" />' +
+                '<input type="hidden" name="DayEntries[' + newIndex + '].Id" value="0" />' +
+                '<input type="hidden" name="DayEntries[' + newIndex + '].Day" value="' + day + '" />' +
+                '<select class="form-select" name="DayEntries[' + newIndex + '].LessonId" onchange="checkNewEntry(this, \'' + day + '\')">' +
+                    document.getElementById('lesson-options-template').innerHTML +
+                '</select>' +
+                '<button type="button" class="btn btn-outline-danger" onclick="removeEntry(' + newIndex + ')">Odstranit</button>';
+            container.appendChild(newDiv);
+        }
+
+        // Funkce, která volitelně může automaticky přidat nový řádek, pokud je vybrána hodnota
+        function checkNewEntry(selectElem, day) {
+            if (selectElem.value !== "") {
+                // Můžete automaticky přidat nový select, pokud to potřebujete:
+                // addNewEntry(day);
+            }
+        }
+
+        // Funkce pro odstranění položky a následné reindexování záznamů
+        function removeEntry(index) {
+            var elem = document.getElementById('entry_' + index);
+            if (elem) {
+                elem.parentNode.removeChild(elem);
+                reindexEntries();
+            }
+        }
+
+        // Reindexuje všechny existující řádky v rámci formuláře, aby byly indexy souvislé
+        function reindexEntries() {
+            var container = document.getElementById('daysContainer');
+            var inputs = container.querySelectorAll('[name^="DayEntries["]');
+            var newIndex = 0;
+            // Vyhledáme všechny inputy, které mají jméno ve tvaru DayEntries[...].Id
+            var entries = container.querySelectorAll('div.input-group[id^="entry_"]');
+            entries.forEach(function(entry) {
+                // Aktualizujeme skryté inputy a name atributy pro select
+                var idInput = entry.querySelector('input[name$=".Id"]');
+                var dayInput = entry.querySelector('input[name$=".Day"]');
+                var select = entry.querySelector('select');
+                if (idInput && dayInput && select) {
+                    idInput.name = 'DayEntries[' + newIndex + '].Id';
+                    dayInput.name = 'DayEntries[' + newIndex + '].Day';
+                    select.name = 'DayEntries[' + newIndex + '].LessonId';
+                    // Aktualizujeme také hidden input pro index, pokud existuje
+                    var indexInput = entry.querySelector('input[name="DayEntries.index"]');
+                    if (indexInput) {
+                        indexInput.value = newIndex;
                     }
-                ]
+                }
+                newIndex++;
             });
-        });
-
-        function actionFormatter(value, row, index) {
-            return '<a href="/TimeTableEntry/TableDetails?tableId=' + row.id + '" class="btn btn-primary px-3">Upravit</a>';
+            window.newEntryCounter = newIndex;
+        }
+    </script>
+    <script id="lesson-options-template" type="text/template">
+        <option value="">-- Vyberte lekci --</option>
+        @foreach (var lesson in Model.LessonList)
+        {
+            <option value="@lesson.Value">@lesson.Text</option>
         }
     </script>
 }

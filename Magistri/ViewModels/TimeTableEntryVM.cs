@@ -23,7 +23,7 @@ namespace Magistri.ViewModels
         public List<TimetableDayEntryItemVM> DayEntries { get; set; } = new List<TimetableDayEntryItemVM>();
         [ValidateNever]
 
-        public List<SelectListItem> ClassList { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem>? ClassList { get; set; } = new List<SelectListItem>();
         [ValidateNever]
         public List<SelectListItem> LessonList { get; set; } = new List<SelectListItem>();
         [ValidateNever]
