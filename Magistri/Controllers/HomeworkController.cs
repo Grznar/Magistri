@@ -1,7 +1,6 @@
 ﻿using Magistri.Application.Common.Interfaces;
 using Magistri.Application.Common.Utlity;
 using Magistri.Domain.Entities;
-using Magistri.Infrastracture.Migrations;
 using Magistri.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -96,14 +95,17 @@ namespace Magistri.Controllers
             return View();
         }
         [Authorize(Roles = SD.Role_Student)]
-        public IActionResult MyList(int id)
+        public IActionResult MyList()
         {
-            
+
+            var user = _userManager.GetUserAsync(User).GetAwaiter().GetResult();
+            var userId = user.Id;
+            var classId = _unitOfWork.Classes.Get(u => u.IdKey == user.StudentClassId).IdKey;
 
 
 
 
-            return View(id);
+            return View(classId);
         }
 
         [Authorize(Roles = SD.Role_Teacher)]
@@ -226,7 +228,7 @@ namespace Magistri.Controllers
         {
            
 
-            var listOfHws = _unitOfWork.Homework.Get(u => u.ClassIdKey == id);
+            var listOfHws = _unitOfWork.Homework.GetAll(u => u.ClassIdKey == id, includeProperties: "Class");
 
 
 

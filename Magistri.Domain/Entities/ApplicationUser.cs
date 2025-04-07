@@ -19,6 +19,11 @@ namespace Magistri.Domain.Entities
         public int? StudentClassId { get; set; } = null;
         [ValidateNever]
         public Class Class { get; set; }
+        [ValidateNever]
+        public ICollection<Message> SentMessages { get; set; } = new List<Message>();
+        [ValidateNever]
+        public ICollection<Message> ReceivedMessages { get; set; } = new List<Message>();
+
 
 
     }

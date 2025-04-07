@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Magistri.Infrastracture.Migrations
 {
     /// <inheritdoc />
-    public partial class addClassToStudentFKClasRenameOk : Migration
+    public partial class seed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -42,6 +42,21 @@ namespace Magistri.Infrastracture.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Subjects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ShortName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Subjects", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -68,7 +83,7 @@ namespace Magistri.Infrastracture.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StudentClassId = table.Column<int>(type: "int", nullable: false),
+                    StudentClassId = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -90,6 +105,45 @@ namespace Magistri.Infrastracture.Migrations
                     table.ForeignKey(
                         name: "FK_AspNetUsers_Classes_StudentClassId",
                         column: x => x.StudentClassId,
+                        principalTable: "Classes",
+                        principalColumn: "IdKey");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "HomeWorks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ClassIdKey = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HomeWorks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HomeWorks_Classes_ClassIdKey",
+                        column: x => x.ClassIdKey,
+                        principalTable: "Classes",
+                        principalColumn: "IdKey",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TimetableEntries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ClassId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TimetableEntries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TimetableEntries_Classes_ClassId",
+                        column: x => x.ClassId,
                         principalTable: "Classes",
                         principalColumn: "IdKey",
                         onDelete: ReferentialAction.Cascade);
@@ -180,6 +234,86 @@ namespace Magistri.Infrastracture.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Lessons",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SubjectId = table.Column<int>(type: "int", nullable: false),
+                    TeacherId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Lessons", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Lessons_AspNetUsers_TeacherId",
+                        column: x => x.TeacherId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Lessons_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FromUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ToUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Topic = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    MessageText = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_FromUserId",
+                        column: x => x.FromUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_ToUserId",
+                        column: x => x.ToUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TimeTableDayEntry",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TimetableEntryId = table.Column<int>(type: "int", nullable: false),
+                    Day = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LessonId = table.Column<int>(type: "int", nullable: true),
+                    HourNumber = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TimeTableDayEntry", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TimeTableDayEntry_Lessons_LessonId",
+                        column: x => x.LessonId,
+                        principalTable: "Lessons",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TimeTableDayEntry_TimetableEntries_TimetableEntryId",
+                        column: x => x.TimetableEntryId,
+                        principalTable: "TimetableEntries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -223,6 +357,46 @@ namespace Magistri.Infrastracture.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HomeWorks_ClassIdKey",
+                table: "HomeWorks",
+                column: "ClassIdKey");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Lessons_SubjectId",
+                table: "Lessons",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Lessons_TeacherId",
+                table: "Lessons",
+                column: "TeacherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_FromUserId",
+                table: "Messages",
+                column: "FromUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_ToUserId",
+                table: "Messages",
+                column: "ToUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeTableDayEntry_LessonId",
+                table: "TimeTableDayEntry",
+                column: "LessonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeTableDayEntry_TimetableEntryId",
+                table: "TimeTableDayEntry",
+                column: "TimetableEntryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimetableEntries_ClassId",
+                table: "TimetableEntries",
+                column: "ClassId");
         }
 
         /// <inheritdoc />
@@ -244,10 +418,28 @@ namespace Magistri.Infrastracture.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "HomeWorks");
+
+            migrationBuilder.DropTable(
+                name: "Messages");
+
+            migrationBuilder.DropTable(
+                name: "TimeTableDayEntry");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "Lessons");
+
+            migrationBuilder.DropTable(
+                name: "TimetableEntries");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Subjects");
 
             migrationBuilder.DropTable(
                 name: "Classes");

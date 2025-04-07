@@ -184,19 +184,11 @@ namespace Magistri.Infrastracture.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("FromId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("FromUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MessageText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ToId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -463,15 +455,15 @@ namespace Magistri.Infrastracture.Migrations
             modelBuilder.Entity("Magistri.Domain.Entities.Message", b =>
                 {
                     b.HasOne("Magistri.Domain.Entities.ApplicationUser", "FromUser")
-                        .WithMany()
+                        .WithMany("SentMessages")
                         .HasForeignKey("FromUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Magistri.Domain.Entities.ApplicationUser", "ToUser")
-                        .WithMany()
+                        .WithMany("ReceivedMessages")
                         .HasForeignKey("ToUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("FromUser");
@@ -556,6 +548,13 @@ namespace Magistri.Infrastracture.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Magistri.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("ReceivedMessages");
+
+                    b.Navigation("SentMessages");
                 });
 
             modelBuilder.Entity("Magistri.Domain.Entities.TimeTableEntry", b =>

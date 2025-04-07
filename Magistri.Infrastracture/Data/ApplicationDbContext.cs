@@ -29,8 +29,20 @@ namespace Magistri.Infrastracture.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
-            
+
+            modelBuilder.Entity<Message>()
+       .HasOne(m => m.FromUser)
+       .WithMany(u => u.SentMessages)
+       .HasForeignKey(m => m.FromUserId)
+       .OnDelete(DeleteBehavior.NoAction); // nebo DeleteBehavior.Restrict
+
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.ToUser)
+                .WithMany(u => u.ReceivedMessages)
+                .HasForeignKey(m => m.ToUserId)
+                .OnDelete(DeleteBehavior.NoAction); // nebo DeleteBehavior.Restrict
+
+
         }
     }
 }

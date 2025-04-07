@@ -41,7 +41,7 @@ namespace Magistri.Controllers
             }
             catch(Exception)
             {
-                return View();
+                return NotFound();
             }
         }
     }

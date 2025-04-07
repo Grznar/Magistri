@@ -40,13 +40,15 @@ namespace Magistri.Controllers
         }
         [HttpPost]
         public IActionResult Create(MessageVm messageVm)
-        {
-            if(ModelState.IsValid)
+        {   
+            messageVm.FromId = _userManager.GetUserAsync(User).GetAwaiter().GetResult().Id;
+
+            if (ModelState.IsValid)
             {
                 Message message = new Message()
                 {
-                    FromId = _userManager.GetUserAsync(User).GetAwaiter().GetResult().Id,
-                    ToId = messageVm.ToId,
+                    FromUserId = _userManager.GetUserAsync(User).GetAwaiter().GetResult().Id,
+                    ToUserId = messageVm.ToId,
                     Topic = messageVm.Topic,
                     MessageText = messageVm.MessageText
                 };
@@ -60,12 +62,19 @@ namespace Magistri.Controllers
         public IActionResult List()
         {
             var id = _userManager.GetUserAsync(User).GetAwaiter().GetResult().Id;
-            return View(id);
+            return View(model:id);
         }
         #region API CALSS
         public IActionResult GetAllMyMessages(string id)
         {
-            var messages = _unitOfWork.Message.GetAll(u => u.ToId == id);
+            var messages = _unitOfWork.Message.GetAll(m => m.ToUserId == id)
+                .Select(m => new
+                {
+                    id = m.Id,
+                    topic = m.Topic,
+                    messageText = m.MessageText,
+                    fromUserName = _unitOfWork.Students.Get(u=>u.Id==m.FromUserId).Name,
+                }).ToList();
             return Json(new { data = messages });
         }
         #endregion

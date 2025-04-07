@@ -4,20 +4,18 @@
         <div class="col-md-10 offset-md-1">
             <div class="card">
                 <div class="card-title">
-                    <h1 class="fw-bold text-primary text-center ">Seznam mých Zpráv</h1>
+                    <h1 class="fw-bold text-primary text-center">Seznam mých zpráv</h1>
                 </div>
                 <div class="card-body">
-                    <table id="tableMessage" data-pagination="true"
-                           data-search="true">
+                    <table id="tableMessage" data-pagination="true" data-search="true">
                         <thead>
                             <tr>
-                                <th data-sortable="true" data-field="id">Id</th>
-
-                                <th data-sortable="true" data-field="dueDate">Do kdy</th>
-
+                                <th data-sortable="true" data-field="id">ID</th>
+                                <th data-sortable="true" data-field="topic">Předmět</th>
+                                <th data-sortable="true" data-field="messageText">Text</th>
+                                <th data-sortable="true" data-field="fromUserName">Odesílatel</th>
                             </tr>
                         </thead>
-
                     </table>
                 </div>
             </div>
@@ -32,61 +30,30 @@
             </div>
         </div>
     </div>
+</div>
 
-    @section Scripts {
-
-        <script>
-                        $(document).ready(function () {
-                $('#tableMessage').bootstrapTable({
-                url: '/Message/GetAllMyMessages?id='+'@Model',
-                    dataField: 'data',
-                    pagination: true,
-                    search: true,
-                    columns: [{
-                        field: 'id',
-                        title: 'ID'
-                    }, {
-                        field: 'dueDate',
-                        title: 'Do',
-                        formatter: dateFormatter
-                    }, {
-
-
-
-
-
-
-                        field: 'actions',
-                        title: 'Akce',
-                        align: 'center',
-                        formatter: actionFormatter,
-
-                    }]
-                });
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tableMessage').bootstrapTable({
+                url: '/Message/GetAllMyMessages?id=' + '@Model',
+                dataField: 'data',
+                pagination: true,
+                search: true,
+                columns: [{
+                    field: 'id',
+                    title: 'ID'
+                }, {
+                    field: 'topic',
+                    title: 'Předmět'
+                }, {
+                    field: 'messageText',
+                    title: 'Text'
+                }, {
+                    field: 'fromUserName',
+                    title: 'Odesílatel'
+                }]
             });
-
-            function actionFormatter(value, row, index) {
-                return [
-                    '<a href="/Homework/edit?hwId=' + row.id + '" class="btn btn-primary px-3">Upravit</a>',
-                    ' ',
-                    '<a href="/Homework/delete?hwId=' + row.id+ '" class="btn btn-danger px-3">Vymazat</a>',
-
-                ].join('');
-            }
-
-            function dateFormatter(value, row, index) {
-                if (!value) return "";
-                var date = new Date(value);
-                var day = date.getDate();
-                var month = date.getMonth() + 1;
-                var year = date.getFullYear();
-
-                if (day < 10) { day = "0" + day; }
-                if (month < 10) { month = "0" + month; }
-                return day + "." + month + "." + year;
-            }
-        </script>
-
-
-    }
-
+        });
+    </script>
+}

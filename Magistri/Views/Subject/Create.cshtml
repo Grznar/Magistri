@@ -16,7 +16,11 @@
 							<input asp-for="Name" class="form-control" />
 							<span asp-validation-for="Name" class="text-danger"></span>
 						</div>
-						
+						<div class="mb-3">
+							<label asp-for="ShortName" class="form-label">Zkratka</label>
+							<input asp-for="ShortName" class="form-control" />
+							<span asp-validation-for="ShortName" class="text-danger"></span>
+						</div>
 						<div class="mb-3">
 							<label asp-for="Description" class="form-label">Popis</label>
 							<input asp-for="Description" class="form-control" />

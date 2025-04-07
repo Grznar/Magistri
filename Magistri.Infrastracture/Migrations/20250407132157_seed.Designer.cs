@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Magistri.Infrastracture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250406040412_updateTTDE")]
-    partial class updateTTDE
+    [Migration("20250407132157_seed")]
+    partial class seed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -128,6 +128,30 @@ namespace Magistri.Infrastracture.Migrations
                     b.ToTable("Classes");
                 });
 
+            modelBuilder.Entity("Magistri.Domain.Entities.HomeWork", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClassIdKey")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassIdKey");
+
+                    b.ToTable("HomeWorks");
+                });
+
             modelBuilder.Entity("Magistri.Domain.Entities.Lesson", b =>
                 {
                     b.Property<int>("Id")
@@ -153,6 +177,39 @@ namespace Magistri.Infrastracture.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("Magistri.Domain.Entities.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FromUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("MessageText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ToUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToUserId");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Magistri.Domain.Entities.Subject", b =>
@@ -190,7 +247,10 @@ namespace Magistri.Infrastracture.Migrations
                     b.Property<string>("Day")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("LessonId")
+                    b.Property<int?>("HourNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("LessonId")
                         .HasColumnType("int");
 
                     b.Property<int>("TimetableEntryId")
@@ -365,6 +425,17 @@ namespace Magistri.Infrastracture.Migrations
                     b.Navigation("Class");
                 });
 
+            modelBuilder.Entity("Magistri.Domain.Entities.HomeWork", b =>
+                {
+                    b.HasOne("Magistri.Domain.Entities.Class", "Class")
+                        .WithMany()
+                        .HasForeignKey("ClassIdKey")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Class");
+                });
+
             modelBuilder.Entity("Magistri.Domain.Entities.Lesson", b =>
                 {
                     b.HasOne("Magistri.Domain.Entities.Subject", "Subject")
@@ -384,13 +455,30 @@ namespace Magistri.Infrastracture.Migrations
                     b.Navigation("Subject");
                 });
 
+            modelBuilder.Entity("Magistri.Domain.Entities.Message", b =>
+                {
+                    b.HasOne("Magistri.Domain.Entities.ApplicationUser", "FromUser")
+                        .WithMany("SentMessages")
+                        .HasForeignKey("FromUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Magistri.Domain.Entities.ApplicationUser", "ToUser")
+                        .WithMany("ReceivedMessages")
+                        .HasForeignKey("ToUserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToUser");
+                });
+
             modelBuilder.Entity("Magistri.Domain.Entities.TimeTableDayEntry", b =>
                 {
                     b.HasOne("Magistri.Domain.Entities.Lesson", "Lesson")
                         .WithMany()
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("LessonId");
 
                     b.HasOne("Magistri.Domain.Entities.TimeTableEntry", "TimetableEntry")
                         .WithMany("DayEntries")
@@ -463,6 +551,13 @@ namespace Magistri.Infrastracture.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Magistri.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("ReceivedMessages");
+
+                    b.Navigation("SentMessages");
                 });
 
             modelBuilder.Entity("Magistri.Domain.Entities.TimeTableEntry", b =>
