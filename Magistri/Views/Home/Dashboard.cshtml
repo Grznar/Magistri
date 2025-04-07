@@ -1,51 +1,132 @@
 ﻿<div class="container pt-5 pb-5">
-<div class="row">
-	<div class="col-md-3">
-		<a asp-controller="Class" asp-action="Index" class="text-decoration-none">
-		<div class="card">
-			<div class="card-body">
-					<h5 class="card-title fw-bold fs-2">Třídy</h5>
-					<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-people fa-3x"></i></p>
-					
+	@if (User.IsInRole(SD.Role_Teacher))
+	{
+		<div class="row text-center align-items-center">
+			<div class="col-md-3">
+				<a asp-controller="Class" asp-action="Index" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Třídy</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-people fa-3x"></i></p>
+
+						</div>
+					</div>
+				</a>
 			</div>
+			<div class="col-md-3">
+				<a asp-controller="Subject" asp-action="Index" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Předměty</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-hammer fa-3x"></i></p>
+
+						</div>
+					</div>
+				</a>
 			</div>
-			</a>
-	</div>
-		<div class="col-md-3">
-			<a asp-controller="Subject" asp-action="Index" class="text-decoration-none">
+			<div class="col-md-3">
+				<a asp-controller="Lesson" asp-action="Index" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Hodiny</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-clock fa-3x"></i></p>
+
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-md-3">
+				<a asp-controller="TimeTableEntry" asp-action="Index" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Rozvrh</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-calendar fa-3x"></i></p>
+
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+		<div class="row mt-5 text-center align-items-center justify-content-center">
+			<hr class="mx-auto w-100 text-danger" />
+		<div class="col-md-4">
+			<a asp-controller="TimeTableTeacher" asp-action="Index" class="text-decoration-none">
 				<div class="card">
 					<div class="card-body">
-						<h5 class="card-title fw-bold fs-2">Předměty</h5>
-						<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-hammer fa-3x"></i></p>
+						<h5 class="card-title fw-bold fs-2">Můj Rozvrh</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-calendar-check fa-3x"></i></p>
 
 					</div>
 				</div>
 			</a>
 		</div>
-		<div class="col-md-3">
-			<a asp-controller="Lesson" asp-action="Index" class="text-decoration-none">
-				<div class="card">
-					<div class="card-body">
-						<h5 class="card-title fw-bold fs-2">Hodiny</h5>
-						<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-clock fa-3x"></i></p>
+			<div class="col-md-4">
+				<a asp-controller="Homework" asp-action="IndexTeacher" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Domácí úkoly</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-house-lock fa-3x"></i></p>
 
+						</div>
 					</div>
-				</div>
-			</a>
-		</div>
-		<div class="col-md-3">
-			<a asp-controller="TimeTableEntry" asp-action="Index" class="text-decoration-none">
-				<div class="card">
-					<div class="card-body">
-						<h5 class="card-title fw-bold fs-2">Rozvrh</h5>
-						<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-calendar fa-3x"></i></p>
+				</a>
+			</div>
+			<div class="col-md-4">
+				<a asp-controller="Message" asp-action="Index" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Zprávy</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-house-lock fa-3x"></i></p>
 
+						</div>
 					</div>
-				</div>
-			</a>
+				</a>
+			</div>
 		</div>
-</div>
-<div class="row mt-5">
+	}
+	else
+	{
+		<div class="row mt-5 text-center align-items-center justify-content-center">
+			<div class="col-md-3">
+				<a asp-controller="TimeTable" asp-action="Index" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Můj Rozvrh</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-calendar fa-3x"> </i> </p>
+
+						</div>
+					</div>
+				</a>
+			</div>
+
+	
+		
+			<div class="col-md-3">
+				<a asp-controller="Homework" asp-action="MyList" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Mé Úkoly</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-house-lock fa-3x"></i></p>
+
+						</div>
+					</div>
+				</a>
+			</div>
+			<div class="col-md-3">
+				<a asp-controller="Message" asp-action="Index" class="text-decoration-none">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title fw-bold fs-2">Zprávy</h5>
+							<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-house-lock fa-3x"></i></p>
+
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+		
+	}
+	<div class="row mt-5">
 	<div class="col-md-3">
 		<button class="btn btn-danger">
 				<a asp-controller="Home" asp-action="Index" class="text-decoration-none text-white">

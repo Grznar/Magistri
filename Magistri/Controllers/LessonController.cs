@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Magistri.Controllers
 {
+    [Authorize(Roles = SD.Role_Teacher)]
     public class LessonController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

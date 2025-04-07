@@ -23,7 +23,7 @@ namespace Magistri.Controllers
         }
         public IActionResult Login()
         {
-            
+            if (HttpContext.User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
             LoginVM loginVM = new()
             {
                
@@ -32,6 +32,7 @@ namespace Magistri.Controllers
         }
         public async Task<IActionResult> Register()
         {
+            if (HttpContext.User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
             if (!await _roleManager.RoleExistsAsync(SD.Role_Teacher))
             {
                 await _roleManager.CreateAsync(new IdentityRole(SD.Role_Teacher));

@@ -46,7 +46,7 @@ namespace Magistri.ViewModels
         public List<DayHourVM> Hours { get; set; } = new List<DayHourVM>();
         public List<int>?LessonIds { get; set; } = new List<int>();
 
-        
+        public List<int?> HourNumbers { get; set; } = new List<int?>();
         [ValidateNever]
         public List<SelectListItem> LessonList { get; set; } = new List<SelectListItem>();
 

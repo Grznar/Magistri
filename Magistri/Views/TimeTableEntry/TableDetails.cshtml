@@ -1,15 +1,17 @@
 ﻿@model Magistri.ViewModels.EditTimeTableEntryVM
 
 @{
-    // Seskupíme existující záznamy podle dne (např. "Pondělí", "Úterý", …)
-    var groupedDays = Model.TimeTableEntry.DayEntries.GroupBy(e => e.Day).ToList();
-    int globalIndex = 0; // Globální čítač pro indexaci všech řádků
+    var allDays = new List<string> { "Pondělí", "Úterý", "Středa", "Čtvrtek", "Pátek" };
+    var existingDays = Model.DayEntries.Select(e => e.Day).Distinct().ToList();
+    var missingDays = allDays.Except(existingDays).ToList();
+    var groupedDays = Model.DayEntries.GroupBy(e => e.Day).ToList();
+    int globalIndex = 0; 
 }
 
 <div class="container mt-5">
-    <form method="post" asp-action="TableDetails" id="tableDetailsForm">
+    <form method="post" asp-action="TableDetails">
         <div asp-validation-summary="ModelOnly"></div>
-        <!-- Skryté inputy pro hlavní rozvrh -->
+     
         <input type="hidden" asp-for="TimeTableEntry.Id" />
         <input type="hidden" asp-for="TimeTableEntry.ClassId" />
 
@@ -28,11 +30,7 @@
                         @foreach (var entry in group)
                         {
                             <div class="input-group mb-2" id="entry_@globalIndex">
-                                <!-- Skrytý input pro index řádku -->
-                                <input type="hidden" name="DayEntries.index" value="@globalIndex" />
-                                <!-- Skrytý input pro ID existujícího záznamu -->
                                 <input type="hidden" name="DayEntries[@globalIndex].Id" value="@entry.Id" />
-                                <!-- Skrytý input pro den -->
                                 <input type="hidden" name="DayEntries[@globalIndex].Day" value="@entry.Day" />
                                 <select class="form-select" name="DayEntries[@globalIndex].LessonId">
                                     <option value="">-- Vyberte lekci --</option>
@@ -40,7 +38,14 @@
                                     {
                                         var selected = (entry.LessonId != 0 && entry.LessonId.ToString() == lesson.Value)
                                             ? " selected=\"selected\"" : "";
-                                        @:<option value="@lesson.Value"@Html.Raw(selected)>@lesson.Text</option>
+                                        @:<option value="@lesson.Value" @Html.Raw(selected)>@lesson.Text</option>
+                                    }
+                                </select>
+                                <select class="form-select ms-2" name="DayEntries[@globalIndex].HourNumber" onchange="validateUniqueHour(this)">
+                                    <option value="">-- Vyberte hodinu --</option>
+                                    @for (int h = 1; h <= 8; h++) {  
+                                        var selectedHour = (entry.HourNumber != null && entry.HourNumber == h) ? " selected" : "";
+                                        <option value="@h" Html.Raw(selectedHour)>@h. hodina</option>
                                     }
                                 </select>
                                 <button type="button" class="btn btn-outline-danger" onclick="removeEntry(@globalIndex)">Odstranit</button>
@@ -52,6 +57,25 @@
                 </div>
             }
         </div>
+        
+        @if(missingDays.Any())
+        {
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">Přidat nový den</h5>
+                </div>
+                <div class="card-body">
+                    <select class="form-select" id="newDaySelect">
+                        <option value="">-- Vyberte den --</option>
+                        @foreach (var day in missingDays)
+                        {
+                            <option value="@day">@day</option>
+                        }
+                    </select>
+                    <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addNewDay()">Přidat den</button>
+                </div>
+            </div>
+        }
 
         <button type="submit" class="btn btn-primary">Uložit rozvrh</button>
     </form>
@@ -59,12 +83,10 @@
 
 @section Scripts {
     <script>
-        // Inicializace globálního čítače pro nové položky, pokud ještě není definován
         if (window.newEntryCounter === undefined) {
             window.newEntryCounter = @globalIndex;
         }
 
-        // Funkce pro přidání nové položky (nového selectu) do kontejneru pro daný den
         function addNewEntry(day) {
             var container = document.getElementById('dayContainer_' + day);
             var newIndex = window.newEntryCounter;
@@ -75,25 +97,32 @@
             newDiv.id = 'entry_' + newIndex;
 
             newDiv.innerHTML =
-                '<input type="hidden" name="DayEntries.index" value="' + newIndex + '" />' +
                 '<input type="hidden" name="DayEntries[' + newIndex + '].Id" value="0" />' +
                 '<input type="hidden" name="DayEntries[' + newIndex + '].Day" value="' + day + '" />' +
                 '<select class="form-select" name="DayEntries[' + newIndex + '].LessonId" onchange="checkNewEntry(this, \'' + day + '\')">' +
                     document.getElementById('lesson-options-template').innerHTML +
                 '</select>' +
+                '<select class="form-select ms-2" name="DayEntries[' + newIndex + '].HourNumber" onchange="validateUniqueHour(this)">' +
+                    '<option value="">-- Vyberte hodinu --</option>' +
+                    '<option value="1">1. hodina</option>' +
+                    '<option value="2">2. hodina</option>' +
+                    '<option value="3">3. hodina</option>' +
+                    '<option value="4">4. hodina</option>' +
+                    '<option value="5">5. hodina</option>' +
+                    '<option value="6">6. hodina</option>' +
+                    '<option value="7">7. hodina</option>' +
+                    '<option value="8">8. hodina</option>' +
+                '</select>' +
                 '<button type="button" class="btn btn-outline-danger" onclick="removeEntry(' + newIndex + ')">Odstranit</button>';
             container.appendChild(newDiv);
         }
 
-        // Funkce, která volitelně může automaticky přidat nový řádek, pokud je vybrána hodnota
         function checkNewEntry(selectElem, day) {
             if (selectElem.value !== "") {
-                // Můžete automaticky přidat nový select, pokud to potřebujete:
-                // addNewEntry(day);
+                // Zde můžete doplnit další logiku, pokud je potřeba
             }
         }
 
-        // Funkce pro odstranění položky a následné reindexování záznamů
         function removeEntry(index) {
             var elem = document.getElementById('entry_' + index);
             if (elem) {
@@ -102,31 +131,128 @@
             }
         }
 
-        // Reindexuje všechny existující řádky v rámci formuláře, aby byly indexy souvislé
         function reindexEntries() {
             var container = document.getElementById('daysContainer');
-            var inputs = container.querySelectorAll('[name^="DayEntries["]');
-            var newIndex = 0;
-            // Vyhledáme všechny inputy, které mají jméno ve tvaru DayEntries[...].Id
             var entries = container.querySelectorAll('div.input-group[id^="entry_"]');
+            var newIndex = 0;
             entries.forEach(function(entry) {
-                // Aktualizujeme skryté inputy a name atributy pro select
                 var idInput = entry.querySelector('input[name$=".Id"]');
                 var dayInput = entry.querySelector('input[name$=".Day"]');
-                var select = entry.querySelector('select');
-                if (idInput && dayInput && select) {
+                var lessonSelect = entry.querySelector('select[name*="LessonId"]');
+                var hourSelect = entry.querySelector('select[name*="HourNumber"]');
+                if (idInput && dayInput && lessonSelect && hourSelect) {
                     idInput.name = 'DayEntries[' + newIndex + '].Id';
                     dayInput.name = 'DayEntries[' + newIndex + '].Day';
-                    select.name = 'DayEntries[' + newIndex + '].LessonId';
-                    // Aktualizujeme také hidden input pro index, pokud existuje
-                    var indexInput = entry.querySelector('input[name="DayEntries.index"]');
-                    if (indexInput) {
-                        indexInput.value = newIndex;
-                    }
+                    lessonSelect.name = 'DayEntries[' + newIndex + '].LessonId';
+                    hourSelect.name = 'DayEntries[' + newIndex + '].HourNumber';
                 }
                 newIndex++;
             });
             window.newEntryCounter = newIndex;
+        }
+
+        function addNewDay() {
+            var selectElem = document.getElementById('newDaySelect');
+            var selectedDay = selectElem.value;
+            if (selectedDay === "") {
+                alert("Prosím vyberte den.");
+                return;
+            }
+            if (!document.getElementById('card_' + selectedDay)) {
+                var cardDiv = document.createElement('div');
+                cardDiv.className = 'card mb-3';
+                cardDiv.id = 'card_' + selectedDay;
+
+                var cardHeader = document.createElement('div');
+                cardHeader.className = 'card-header';
+                cardHeader.innerHTML = '<h5 class="card-title">' + selectedDay + '</h5>';
+
+                var cardBody = document.createElement('div');
+                cardBody.className = 'card-body';
+                cardBody.id = 'dayContainer_' + selectedDay;
+
+                var newIndex = window.newEntryCounter;
+                window.newEntryCounter++;
+                var inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group mb-2';
+                inputGroup.id = 'entry_' + newIndex;
+                inputGroup.innerHTML =
+                    '<input type="hidden" name="DayEntries[' + newIndex + '].Id" value="0" />' +
+                    '<input type="hidden" name="DayEntries[' + newIndex + '].Day" value="' + selectedDay + '" />' +
+                    '<select class="form-select" name="DayEntries[' + newIndex + '].LessonId">' +
+                        document.getElementById('lesson-options-template').innerHTML +
+                    '</select>' +
+                    '<button type="button" class="btn btn-outline-danger" onclick="removeEntry(' + newIndex + ')">Odstranit</button>';
+                cardBody.appendChild(inputGroup);
+
+                var addButton = document.createElement('button');
+                addButton.type = 'button';
+                addButton.className = 'btn btn-sm btn-secondary';
+                addButton.innerText = 'Přidat lekci';
+                addButton.onclick = function() { addNewEntry(selectedDay); };
+
+                cardDiv.appendChild(cardHeader);
+                cardDiv.appendChild(cardBody);
+                cardDiv.appendChild(addButton);
+
+                document.getElementById('daysContainer').appendChild(cardDiv);
+
+                var optionToRemove = selectElem.querySelector('option[value="' + selectedDay + '"]');
+                if (optionToRemove) {
+                    optionToRemove.remove();
+                }
+            }
+            else {
+                alert("Tento den již existuje.");
+            }
+        }
+
+        // Funkce, která před odesláním formuláře doplní chybějící hodnoty hodin
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // Projdeme každý kontejner dne
+            var dayContainers = document.querySelectorAll('[id^="dayContainer_"]');
+            dayContainers.forEach(function(container) {
+                // Najdeme všechny selecty pro hodiny v daném kontejneru
+                var selects = container.querySelectorAll('select[name*="HourNumber"]');
+                // Zjistíme, jaké hodiny již byly vybrány (jako čísla)
+                var used = [];
+                selects.forEach(function(select) {
+                    if (select.value !== "") {
+                        used.push(parseInt(select.value));
+                    }
+                });
+                // Vytvoříme seznam dostupných hodnot (1 až 8)
+                var available = [];
+                for (var i = 1; i <= 8; i++) {
+                    if (used.indexOf(i) === -1) {
+                        available.push(i);
+                    }
+                }
+                // Pokud jsou nějaké selecty prázdné, přiřadíme jim nejmenší dostupnou hodnotu
+                selects.forEach(function(select) {
+                    if (select.value === "" && available.length > 0) {
+                        select.value = available.shift();
+                    }
+                });
+            });
+        });
+        
+        function validateUniqueHour(selectElem) {
+            var selectedHour = selectElem.value;
+            if (selectedHour === "") return;
+            var container = selectElem.closest('.card-body');
+            if (!container) return;
+            var hourSelects = container.querySelectorAll('select[name*="HourNumber"]');
+            var count = 0;
+            hourSelects.forEach(function(elem) {
+                if (elem.value === selectedHour) {
+                    count++;
+                }
+            });
+            if (count > 1) {
+                alert("Hodina " + selectedHour + " byla již vybrána pro tento den. Vyberte prosím jinou hodinu.");
+                selectElem.value = "";
+            }
         }
     </script>
     <script id="lesson-options-template" type="text/template">

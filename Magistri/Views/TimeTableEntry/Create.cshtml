@@ -20,16 +20,33 @@
                     <h5 class="card-title">@Model.DayEntries[i].Day</h5>
                     <input type="hidden" name="DayEntries[@i].Day" value="@Model.DayEntries[i].Day" />
                     <div id="day-container-@i">
-                        <!-- První select pro daný den -->
-                        <select class="form-select"
-                                name="DayEntries[@i].LessonIds[0]"
-                                onchange="addNewSelect(@i)">
-                            <option value="">-- Vyberte lekci --</option>
-                            @foreach (var lesson in Model.LessonList)
-                            {
-                                <option value="@lesson.Value">@lesson.Text</option>
-                            }
-                        </select>
+                        <div class="input-group mb-2">
+                            <!-- Select pro lekci -->
+                            <select class="form-select"
+                                    name="DayEntries[@i].LessonIds[0]"
+                                    onchange="addNewSelect(@i)">
+                                <option value="">-- Vyberte lekci --</option>
+                                @foreach (var lesson in Model.LessonList)
+                                {
+                                    <option value="@lesson.Value">@lesson.Text</option>
+                                }
+                            </select>
+                            <!-- Select pro číslo hodiny -->
+                            <select class="form-select ms-2"
+                                    name="DayEntries[@i].HourNumbers[0]"
+                                    onchange="validateUniqueHour(this)">
+                                <option value="">-- Vyberte hodinu --</option>
+                                <option value="1">1. hodina</option>
+                                <option value="2">2. hodina</option>
+                                <option value="3">3. hodina</option>
+                                <option value="4">4. hodina</option>
+                                <option value="5">5. hodina</option>
+                                <option value="6">6. hodina</option>
+                                <option value="7">7. hodina</option>
+                                <option value="8">8. hodina</option>
+                                <option value="9">9. hodina</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -37,7 +54,7 @@
 
         <button type="submit" class="btn btn-primary">Uložit rozvrh</button>
     </form>
-    <div class="col-md-6  text-end align-items-end">
+    <div class="col-md-6 text-end align-items-end">
         <a asp-action="Index" class="btn btn-danger">Zpět</a>
     </div>
 </div>
@@ -54,28 +71,56 @@
 @section Scripts {
     <script>
         function addNewSelect(dayIndex) {
-            // Najdeme kontejner pro daný den
             var container = document.getElementById('day-container-' + dayIndex);
-            // Získáme všechny selecty v kontejneru
-            var selects = container.getElementsByTagName('select');
-            var lastSelect = selects[selects.length - 1];
-            // Pokud je v posledním selectu vybrána nějaká hodnota (není prázdná), přidáme nový select
-            if (lastSelect.value !== "") {
-                // Vytvoříme nový select
-                var newSelect = document.createElement('select');
-                newSelect.className = 'form-select mt-2';
-                // Název bude odpovídat novému indexu
-                var newIndex = selects.length;
-                newSelect.name = 'DayEntries[' + dayIndex + '].LessonIds[' + newIndex + ']';
+            // Každý záznam je nyní tvořen jedním párem selectů (vnořený div input-group)
+            var groups = container.getElementsByClassName('input-group');
+            var lastGroup = groups[groups.length - 1];
+            var lessonSelect = lastGroup.getElementsByTagName('select')[0];
+            // Pokud je v posledním selectu pro lekci vybrána hodnota, přidáme nový pár
+            if (lessonSelect.value !== "") {
+                var newIndex = groups.length;
+                var newGroup = document.createElement('div');
+                newGroup.className = 'input-group mb-2';
+                newGroup.innerHTML =
+                    '<select class="form-select" name="DayEntries[' + dayIndex + '].LessonIds[' + newIndex + ']" onchange="addNewSelect(' + dayIndex + ')">' +
+                        document.getElementById('lesson-options-template').innerHTML +
+                    '</select>' +
+                    '<select class="form-select ms-2" name="DayEntries[' + dayIndex + '].HourNumbers[' + newIndex + ']" onchange="validateUniqueHour(this)">' +
+                        '<option value="">-- Vyberte hodinu --</option>' +
+                        '<option value="1">1. hodina</option>' +
+                        '<option value="2">2. hodina</option>' +
+                        '<option value="3">3. hodina</option>' +
+                        '<option value="4">4. hodina</option>' +
+                        '<option value="5">5. hodina</option>' +
+                        '<option value="6">6. hodina</option>' +
+                        '<option value="7">7. hodina</option>' +
+                        '<option value="8">8. hodina</option>' +
+                        '<option value="9">9. hodina</option>' +
+                    '</select>';
+                container.appendChild(newGroup);
+            }
+        }
 
-                // Zkopírujeme obsah options z template
-                var template = document.getElementById('lesson-options-template');
-                newSelect.innerHTML = template.innerHTML;
+        function validateUniqueHour(selectElem) {
+            var selectedHour = selectElem.value;
+            if (selectedHour === "") return; // Nic nevybráno, není co kontrolovat
 
-                // Nastavíme onchange event, aby se i pro tento nový select mohl přidat další
-                newSelect.onchange = function() { addNewSelect(dayIndex); };
+            // Najdeme nejbližší kontejner s input-group prvky (předpokládáme, že to je v rámci jednoho dne)
+            var container = selectElem.closest('#day-container-' + selectElem.closest('[id^="day-container-"]').id.split('-')[2]);
+            if (!container) return;
 
-                container.appendChild(newSelect);
+            // Vybereme všechny selecty pro hodiny v tomto kontejneru
+            var hourSelects = container.querySelectorAll('select[name*="HourNumbers"]');
+            var count = 0;
+            hourSelects.forEach(function(elem) {
+                if (elem.value === selectedHour) {
+                    count++;
+                }
+            });
+            // Pokud je stejná hodina vybrána více než jednou, upozorníme uživatele a resetujeme aktuální select
+            if (count > 1) {
+                alert("Hodina " + selectedHour + " byla již vybrána pro tento den. Vyberte prosím jinou hodinu.");
+                selectElem.value = "";
             }
         }
     </script>

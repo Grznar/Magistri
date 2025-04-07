@@ -6,9 +6,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Linq;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Magistri.Application.Common.Utlity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Magistri.Controllers
 {
+    [Authorize(Roles = SD.Role_Teacher)]
     public class TimeTableEntryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -35,7 +38,6 @@ namespace Magistri.Controllers
         [HttpGet]
         public IActionResult TableDetails(int tableId)
         {
-            // Načteme hlavní rozvrh včetně třídy i denních záznamů
             var timetableEntry = _unitOfWork.TimeTableEntry.Get(
                 x => x.Id == tableId,
                 includeProperties: "Class,DayEntries"
@@ -45,13 +47,36 @@ namespace Magistri.Controllers
                 return NotFound();
             }
 
-            // Načteme globální seznam lekcí s vnořenými vlastnostmi
             var lessonList = _unitOfWork.Lessons.GetAll(includeProperties: "Subject,ApplicationUser")
                 .Select(l => new SelectListItem
                 {
                     Text = (l.Subject?.ShortName ?? "No Subject") + " / " + (l.ApplicationUser?.Name ?? "No Teacher"),
                     Value = l.Id.ToString()
                 }).ToList();
+
+           
+            var dayGroups = timetableEntry.DayEntries.GroupBy(de => de.Day);
+            foreach (var group in dayGroups)
+            {
+               
+                var assignedHours = group
+                    .Where(de => de.HourNumber.HasValue)
+                    .Select(de => de.HourNumber.Value)
+                    .ToList();
+
+                
+                var available = Enumerable.Range(1, 8).Except(assignedHours).ToList();
+
+               
+                foreach (var entry in group.Where(de => !de.HourNumber.HasValue))
+                {
+                    if (available.Any())
+                    {
+                        entry.HourNumber = available.First();
+                        available.RemoveAt(0);
+                    }
+                }
+            }
 
             EditTimeTableEntryVM vm = new EditTimeTableEntryVM
             {
@@ -67,36 +92,35 @@ namespace Magistri.Controllers
         [HttpPost]
         public IActionResult TableDetails(EditTimeTableEntryVM vm)
         {
-            // Načteme hlavní rozvrh včetně aktuálních DayEntries
+     
             var timetableEntry = _unitOfWork.TimeTableEntry.Get(x => x.Id == vm.TimeTableEntry.Id, includeProperties: "DayEntries");
             if (timetableEntry == null)
             {
                 return NotFound();
             }
 
-            // Aktualizujeme třídu, pokud se změnila
+       
             timetableEntry.ClassId = vm.TimeTableEntry.ClassId;
 
-            // Smažeme všechny existující denní záznamy z DB
+         
             var existingDayEntries = _unitOfWork.TimeTableDayEntry.GetAll(u => u.TimetableEntryId == timetableEntry.Id);
             foreach (var de in existingDayEntries)
             {
                 _unitOfWork.TimeTableDayEntry.Delete(de);
             }
 
-            // Vytvoříme novou kolekci DayEntries podle dat z formuláře (vm.DayEntries)
             if (vm.DayEntries != null)
             {
                 foreach (var entry in vm.DayEntries)
                 {
-                    // Pokud je vybrána lekce (LessonId > 0) a den není prázdný, přidáme záznam
-                    if (entry.LessonId > 0 && !string.IsNullOrEmpty(entry.Day))
+                    if (entry.LessonId > 0 || entry.HourNumber != null)
                     {
                         timetableEntry.DayEntries.Add(new TimeTableDayEntry
                         {
                             Day = entry.Day,
                             LessonId = entry.LessonId,
-                            TimetableEntryId = timetableEntry.Id // nastavíme správně FK
+                            HourNumber = entry.HourNumber,
+                            TimetableEntryId = timetableEntry.Id
                         });
                     }
                 }
@@ -114,7 +138,7 @@ namespace Magistri.Controllers
             return View();
         }
 
-        // GET: /TimeTableEntry/Create
+ 
         [HttpGet]
         public IActionResult Create()
         {
@@ -147,7 +171,7 @@ namespace Magistri.Controllers
             return View(vm);
         }
 
-        // POST: /TimeTableEntry/Create
+
         [HttpPost]
         public IActionResult Create(TimetableDayEntryCreateVM vm)
         {
@@ -155,12 +179,12 @@ namespace Magistri.Controllers
             {
                 ModelState.Remove(key);
             }
-            // Kontrola, zda již existuje rozvrh pro vybranou třídu
+          
             var existingTimetable = _unitOfWork.TimeTableEntry.GetAll(x => x.ClassId == vm.ClassId).FirstOrDefault();
             if (existingTimetable != null)
             {
                 ModelState.AddModelError("", "Rozvrh pro tuto třídu již existuje.");
-                // Obnovení select listů...
+           
                 var classes = _unitOfWork.Classes.GetAll().ToList();
                 vm.ClassList = classes.Select(c => new SelectListItem
                 {
@@ -191,17 +215,20 @@ namespace Magistri.Controllers
 
                 foreach (var dayEntry in vm.DayEntries)
                 {
-                    if (dayEntry.LessonIds != null)
+                    if (dayEntry.LessonIds != null && dayEntry.HourNumbers != null)
                     {
-                        foreach (var lessonId in dayEntry.LessonIds)
+                        for (int i = 0; i < dayEntry.LessonIds.Count; i++)
                         {
-                            if (lessonId != null && lessonId > 0)
+                            int? lessonId = dayEntry.LessonIds[i];
+                            int? hourNumber = dayEntry.HourNumbers[i];
+                            
+                            if ((lessonId != null && lessonId > 0) || hourNumber != null)
                             {
                                 timetableEntry.DayEntries.Add(new TimeTableDayEntry
                                 {
                                     Day = dayEntry.Day,
-                                    LessonId = lessonId
-
+                                    LessonId = lessonId,
+                                    HourNumber = hourNumber
                                 });
                             }
                         }
@@ -214,7 +241,6 @@ namespace Magistri.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Obnovení select listů při chybě validace
             var classes2 = _unitOfWork.Classes.GetAll().ToList();
             vm.ClassList = classes2.Select(c => new SelectListItem
             {

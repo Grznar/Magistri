@@ -1,0 +1,52 @@
+﻿@model MessageVm
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h1 class="fw-bold text-primary">Vytvořit Zprávu</h1>
+                    </div>
+                    <form method="POST">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <input asp-for="FromId" value="" hidden/>
+
+                        <!-- Dropdown pro člověka -->
+                        <div class="mb-3">
+                            <label asp-for="ToId" class="form-label">Příjemce</label>
+                            <select asp-for="ToId" class="form-select" asp-items="Model.ApplicationUserList">
+                                <option value="">Vyberte příjemce</option>
+                            </select>
+                            <span asp-validation-for="ToId" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Topic" class="form-label">Předmět</label>
+                            <input asp-for="Topic" class="form-control" />
+                            <span asp-validation-for="Topic" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="MessageText" class="form-label" >Zpráva</label>
+                            <textarea cols="15" asp-for="MessageText" class="form-control"></textarea>
+                            <span asp-validation-for="MessageText" class="text-danger"></span>
+                        </div>
+
+                        
+
+                        
+
+
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-primary">Vytvořit</button>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <a asp-action="Index" class="btn btn-danger">Zpět</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

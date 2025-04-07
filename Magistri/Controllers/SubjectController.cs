@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Magistri.Controllers
 {
+    [Authorize(Roles = SD.Role_Teacher)]
     public class SubjectController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

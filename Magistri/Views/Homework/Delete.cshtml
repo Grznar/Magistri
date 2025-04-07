@@ -1,0 +1,52 @@
+﻿@model HomeworkVM
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h1 class="fw-bold text-primary">Vymazat Domácí Úkol</h1>
+                    </div>
+                    <form method="POST">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <input asp-for="Id" hidden/>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" disabled class="form-label">Popis</label>
+                            <input disabled asp-for="Description" class="form-control" />
+                            <span disabled asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3 d-flex flex-column">
+                            <label disabled asp-for="DueDate" class="form-label">Datum Odvezdání</label>
+
+                            <input disabled asp-for="DueDate" type="date" value="@Model.DueDate.ToString("yyyy-MM-dd")" min=" @DateTime.Now" form-control" />
+                            <span disabled asp-validation-for="DueDate" class="text-danger"></span>
+                        </div>
+
+                        <!-- Dropdown pro třídu -->
+                        <div class="mb-3">
+                            <label disabled asp-for="ClassIdKey" class="form-label">Předmět</label>
+                            <select disabled asp-for="ClassIdKey" class="form-select" asp-items="Model.ClassList">
+                                <option disabled value="">Vyberte třídu</option>
+                            </select>
+                            <span disabled asp-validation-for="ClassIdKey" class="text-danger"></span>
+                        </div>
+
+
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="submit" class="btn btn-danger">Vymazat</button>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <a asp-action="IndexTeacher" class="btn btn-primary">Zpět</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

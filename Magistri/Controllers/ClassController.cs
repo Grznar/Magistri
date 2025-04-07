@@ -7,6 +7,7 @@
 
     namespace Magistri.Controllers
     {
+    [Authorize(Roles =SD.Role_Teacher)]
         public class ClassController : Controller
         {
             private readonly IUnitOfWork _unitOfWork;

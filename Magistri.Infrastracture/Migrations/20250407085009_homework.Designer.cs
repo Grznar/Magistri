@@ -4,6 +4,7 @@ using Magistri.Infrastracture.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Magistri.Infrastracture.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250407085009_homework")]
+    partial class homework
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,30 +128,6 @@ namespace Magistri.Infrastracture.Migrations
                     b.ToTable("Classes");
                 });
 
-            modelBuilder.Entity("Magistri.Domain.Entities.HomeWork", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClassIdKey")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClassIdKey");
-
-                    b.ToTable("HomeWorks");
-                });
-
             modelBuilder.Entity("Magistri.Domain.Entities.Lesson", b =>
                 {
                     b.Property<int>("Id")
@@ -174,47 +153,6 @@ namespace Magistri.Infrastracture.Migrations
                     b.HasIndex("TeacherId");
 
                     b.ToTable("Lessons");
-                });
-
-            modelBuilder.Entity("Magistri.Domain.Entities.Message", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FromId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FromUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("MessageText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ToId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ToUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Topic")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FromUserId");
-
-                    b.HasIndex("ToUserId");
-
-                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Magistri.Domain.Entities.Subject", b =>
@@ -430,17 +368,6 @@ namespace Magistri.Infrastracture.Migrations
                     b.Navigation("Class");
                 });
 
-            modelBuilder.Entity("Magistri.Domain.Entities.HomeWork", b =>
-                {
-                    b.HasOne("Magistri.Domain.Entities.Class", "Class")
-                        .WithMany()
-                        .HasForeignKey("ClassIdKey")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Class");
-                });
-
             modelBuilder.Entity("Magistri.Domain.Entities.Lesson", b =>
                 {
                     b.HasOne("Magistri.Domain.Entities.Subject", "Subject")
@@ -458,25 +385,6 @@ namespace Magistri.Infrastracture.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Subject");
-                });
-
-            modelBuilder.Entity("Magistri.Domain.Entities.Message", b =>
-                {
-                    b.HasOne("Magistri.Domain.Entities.ApplicationUser", "FromUser")
-                        .WithMany()
-                        .HasForeignKey("FromUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Magistri.Domain.Entities.ApplicationUser", "ToUser")
-                        .WithMany()
-                        .HasForeignKey("ToUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FromUser");
-
-                    b.Navigation("ToUser");
                 });
 
             modelBuilder.Entity("Magistri.Domain.Entities.TimeTableDayEntry", b =>

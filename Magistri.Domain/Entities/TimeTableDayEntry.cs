@@ -19,6 +19,7 @@ namespace Magistri.Domain.Entities
         public string? Day { get; set; }
         
         public int? LessonId { get; set; }
+        public int? HourNumber { get; set; }
 
         [ValidateNever]
         public Lesson Lesson { get; set; }

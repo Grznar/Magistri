@@ -17,7 +17,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(option =>
 {
-    option.AccessDeniedPath = "/Auth/Login";
+    option.AccessDeniedPath = "/Shared/Error";
     option.LoginPath = "/Auth/Login";
 
 });

@@ -1,0 +1,44 @@
+﻿<div class="container pb-5 mt-5 h-75">
+	<div class="row">
+		<div class="col-md-12">
+			<h1 class="text-center fw-bold fs-1">Zpárvy</h1>
+
+			<hr />
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-3">
+			<a asp-controller="Message" asp-action="Create" class="text-decoration-none">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title fw-bold fs-2">Vytvořit</h5>
+						<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-plus-square fa-3x"></i></p>
+
+					</div>
+				</div>
+			</a>
+		</div>
+		<div class="col-md-3">
+			<a asp-controller="Message" asp-action="List" class="text-decoration-none">
+				<div class="card">
+					<div class="card-body">
+						<h5 class="card-title fw-bold fs-2">Mé zprávy</h5>
+						<p class="card-text fw-bold fs-1 text-end text-danger"><i class="bi bi-pencil fa-3x"></i></p>
+
+					</div>
+				</div>
+			</a>
+		</div>
+
+
+	</div>
+	<div class="row mt-5">
+		<div class="col-md-3">
+			<button class="btn btn-danger">
+				<a asp-controller="Home" asp-action="Dashboard" class="text-decoration-none text-white">
+					Zpět
+				</a>
+			</button>
+		</div>
+	</div>
+</div>
