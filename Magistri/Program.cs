@@ -27,17 +27,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 }
 );
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Cookie.Name = "MagistriAuth";
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;        // jen pøes HTTPS
-    options.Cookie.SameSite = SameSiteMode.None;                   // povolit cross-site
-    options.LoginPath = "/Auth/Login";
-    options.LogoutPath = "/Auth/Logout";
-    options.ExpireTimeSpan = TimeSpan.FromHours(1);
-});
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -47,20 +36,12 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-}
-else
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
