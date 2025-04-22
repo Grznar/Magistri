@@ -10,17 +10,17 @@ namespace Magistri.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        public AuthController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
-        {
-            _unitOfWork = unitOfWork;
-            _userManager = userManager;
-            _signInManager = signInManager; 
-            _roleManager = roleManager;
-        }
+            private readonly IUnitOfWork _unitOfWork;
+            private readonly UserManager<ApplicationUser> _userManager;
+            private readonly SignInManager<ApplicationUser> _signInManager;
+            private readonly RoleManager<IdentityRole> _roleManager;
+            public AuthController(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+            {
+                _unitOfWork = unitOfWork;
+                _userManager = userManager;
+                _signInManager = signInManager; 
+                _roleManager = roleManager;
+            }
         public IActionResult Login()
         {
             if (HttpContext.User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
