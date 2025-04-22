@@ -2,38 +2,77 @@ using Magistri.Application.Common.Interfaces;
 using Magistri.Domain.Entities;
 using Magistri.Infrastracture.Data;
 using Magistri.Infrastracture.Repository;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-options.UseSqlServer
-(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
-builder.Services.ConfigureApplicationCookie(option =>
-{
-    option.AccessDeniedPath = "/Shared/Error";
-    option.LoginPath = "/Auth/Login";
 
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(o =>
+{
+    o.Password.RequiredLength = 6;
+    o.SignIn.RequireConfirmedEmail = false;
+})
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.Cookie.Name = "MagistriAuth";
+    o.Cookie.HttpOnly = true;
+    o.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    o.Cookie.SameSite = SameSiteMode.None;
+    o.LoginPath = "/Auth/Login";
+    o.AccessDeniedPath = "/Shared/Error";
+    o.ExpireTimeSpan = TimeSpan.FromHours(1);
 });
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.Password.RequiredLength = 6;
 
-}
-);
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+
+    await SeedAsync(scope.ServiceProvider);     
+}
+
+static async Task SeedAsync(IServiceProvider svcs)
+{
+    var roleMgr = svcs.GetRequiredService<RoleManager<IdentityRole>>();
+    var userMgr = svcs.GetRequiredService<UserManager<ApplicationUser>>();
+
+    if (!await roleMgr.RoleExistsAsync("Admin"))
+        await roleMgr.CreateAsync(new IdentityRole("Admin"));
+
+    const string email = "admin@magistri.cz";
+    const string pwd = "Admin123!";
+
+    if (await userMgr.FindByEmailAsync(email) is null)
+    {
+        var admin = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
+        await userMgr.CreateAsync(admin, pwd);
+        await userMgr.AddToRoleAsync(admin, "Admin");
+    }
+}
+
+
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -42,6 +81,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();    
 app.UseAuthorization();
 
 app.MapControllerRoute(
