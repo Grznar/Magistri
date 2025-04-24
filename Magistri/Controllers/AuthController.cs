@@ -2,6 +2,7 @@
 using Magistri.Application.Common.Utlity;
 using Magistri.Domain.Entities;
 using Magistri.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -30,6 +31,8 @@ namespace Magistri.Controllers
             };
             return View(loginVM);
         }
+        [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Register()
         {
             if (HttpContext.User.Identity.IsAuthenticated) return RedirectToAction("Index", "Home");
