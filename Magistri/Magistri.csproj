@@ -5,7 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-
+	<None Include="web.config">
+		<CopyToPublishDirectory>Always</CopyToPublishDirectory>
+	</None>
   <ItemGroup>
     <ProjectReference Include="..\Magistri.Infrastracture\Magistri.Infrastracture.csproj" />
   </ItemGroup>
