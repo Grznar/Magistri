@@ -46,28 +46,10 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
 
-    await SeedAsync(scope.ServiceProvider);     
+   
 }
 
-async Task SeedAsync(IServiceProvider services)
-{
-    var userMgr  = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-if (!await userMgr.Users.AnyAsync())
-{
-    var admin = new ApplicationUser
-    {
-        UserName = "admin",
-        Email = "admin@magistri.local",
-        Name = "Admin"        
-    };
-
-    var result = await userMgr.CreateAsync(admin, "P@ssword1");
-
-    if (!result.Succeeded)
-        throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
-}
-}
 
 
 
