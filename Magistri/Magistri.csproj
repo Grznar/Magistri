@@ -21,11 +21,4 @@
 		<Folder Include="wwwroot\images\" />
 	</ItemGroup>
 
-
-	<ItemGroup>
-		<None Include="web.config">
-			<CopyToPublishDirectory>Always</CopyToPublishDirectory>
-		</None>
-	</ItemGroup>
-
 </Project>

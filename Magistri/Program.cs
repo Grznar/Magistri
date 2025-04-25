@@ -49,23 +49,24 @@ using (var scope = app.Services.CreateScope())
     await SeedAsync(scope.ServiceProvider);     
 }
 
-static async Task SeedAsync(IServiceProvider svcs)
+async Task SeedAsync(IServiceProvider services)
 {
-    var roleMgr = svcs.GetRequiredService<RoleManager<IdentityRole>>();
-    var userMgr = svcs.GetRequiredService<UserManager<ApplicationUser>>();
+    var userMgr  = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-    if (!await roleMgr.RoleExistsAsync("Admin"))
-        await roleMgr.CreateAsync(new IdentityRole("Admin"));
-
-    const string email = "admin@magistri.cz";
-    const string pwd = "Admin123!";
-
-    if (await userMgr.FindByEmailAsync(email) is null)
+if (!await userMgr.Users.AnyAsync())
+{
+    var admin = new ApplicationUser
     {
-        var admin = new ApplicationUser { UserName = email, Email = email, EmailConfirmed = true };
-        await userMgr.CreateAsync(admin, pwd);
-        await userMgr.AddToRoleAsync(admin, "Admin");
-    }
+        UserName = "admin",
+        Email = "admin@magistri.local",
+        Name = "Admin"        
+    };
+
+    var result = await userMgr.CreateAsync(admin, "P@ssword1");
+
+    if (!result.Succeeded)
+        throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
+}
 }
 
 
