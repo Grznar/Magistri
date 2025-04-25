@@ -5,7 +5,11 @@ using Magistri.Infrastracture.Repository;
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
+AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+{
+    File.WriteAllText("/home/site/wwwroot/startup-error.txt",
+                      e.ExceptionObject.ToString());
+};
 var builder = WebApplication.CreateBuilder(args);
 
 
